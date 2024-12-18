@@ -4,44 +4,75 @@ import { FaRegEye } from "react-icons/fa";
 import { FaGoogle } from "react-icons/fa6";
 import { FaApple } from "react-icons/fa";
 import { FaFacebook } from "react-icons/fa";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { Flip, toast } from 'react-toastify';
 
 
 const Login = () => {
 
   // ======variables part start=========
-  const[ name , setname ]                  = useState('')
   const[ email , setEmail ]                 = useState('')
   const[ password , setpassword ]           = useState('')
-  const [nameError , setNameError]       = useState('')
   const [emailError , setEmaileError]       = useState('')
   const [passwordError , setpasswordError]  = useState('')
 
+  // ================fairbase variables part =============
+  const auth = getAuth();
 // ======funcitions  part start=========
-
-const handelName = (e) =>{
- setname (e.target.value)
-
-}
    const handelEmail = (e) =>{
     setEmail (e.target.value)
-   
    }
    const handelpassword = (e) =>{
     setpassword (e.target.value)
-   
    }
-
    const handelSubmit = (e) =>{
     e.preventDefault()
-    if(name == ''){
-       setNameError ('Enter Your Name')
-    }
     if(email == ''){
        setEmaileError ('Enter Your Email')
     }
     if (password ==''){
       setpasswordError ('Enter Your Password')
-
+    }else{
+      createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up 
+        const user = userCredential.user;
+        sendEmailVerification(auth.currentUser)
+          .then(() => {
+            toast.success('Email Verification Send', {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              transition: Flip,
+              });
+             
+                    });
+        
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage )
+        if(errorCode =='auth/email-already-in-use'){
+          toast.warn('Email Has Already Taken', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Flip,
+            });
+        }
+        // ..
+      });
     }
    }
 // ===========eye part========
@@ -83,9 +114,9 @@ const handelshow = ()=> {
                   {
                     show? 
                     
-                    <FaRegEye      onClick={ handelshow }  className=' top-[20%]  lg:right-5 right-10  absolute text-[20px] ' />
+                    <FaRegEye      onClick={ handelshow }  className=' top-[20%]  lg:right-5 right-10 md:right-11 absolute text-[20px] ' />
                     :
-                    <FaRegEyeSlash  onClick={ handelshow } className=' top-[20%]  lg:right-5 right-10 absolute text-[20px] ' />
+                    <FaRegEyeSlash  onClick={ handelshow } className=' top-[20%]  lg:right-5 right-10 md:right-11 absolute text-[20px] ' />
                   }
 
                 <input onChange={handelpassword} className='pl-5 border-2 border-solid border-[#789ADE] rounded-full outline-none lg:w-[400px] w-[300px] md:h-[30px] lg:h-[40px]  ' 
@@ -94,31 +125,36 @@ const handelshow = ()=> {
                 <br />
                 <p className='text-sm font-normal text-red-500 ml-5'>{passwordError}</p>
 
-                <div className=' flex justify-between '>
+                <div className=' flex gap-[80px] lg:gap-[170px]  '>
+                                           
                     <h2 className='mb-5 text-[#444B59]  ' >
                     Remember me
                     </h2>
+                     
                     <p  className='text-[#8699DA]' >Forget password?</p>
                 </div>
-                 <div className=' flex border-2 mb-5 border-solid bg-[#789ADE] text-white  border-[#789ADE] rounded-full outline-none lg:w-[400px] w-[300px] md:h-[30px] lg:h-[40px]  text-center justify-center items-center mt-10px '  >
+                 <div className=' flex border-2 mb-5 border-solid bg-[#789ADE] text-white active:scale-[1.1] border-[#789ADE] rounded-full outline-none lg:w-[400px] w-[300px] md:h-[30px] lg:h-[40px]  text-center justify-center items-center mt-10px '  >
                      <button>Sign In</button>
                  </div>
                  <div className='  justify-center items-center text-center ' >
-
+                  <div>
+                 
                      <p>or continue with</p>
+                  </div>
+
                  </div>
 
-                  <div className=' flex lg:gap-[60px] gap-[10px] justify-center items-center mt-10 ' >
+                  <div className=' flex lg:gap-[60px] gap-[10px] justify-center items-center mt-10  ' >
                      
-                      <div className=' px-[30px] py-[20px] rounded-md text-[30px] border-2 border-[#789ADE] items-center justify-center text-center  ' >
+                      <div className=' px-[30px] py-[20px] rounded-md text-[30px] hover:bg-[#d7e1f4] border-2 border-[#789ADE] items-center justify-center text-center  ' >
 
                       <a  href="#"> <FaGoogle /> </a>
                       </div>
-                      <div className=' px-[30px] py-[20px] rounded-md text-[30px]  border-2 border-[#789ADE] text-[#C8D3F9] items-center justify-center text-center  ' >
+                      <div className=' px-[30px] py-[20px] rounded-md text-[30px] hover:bg-[#d7e1f4]  border-2 border-[#789ADE] text-[#C8D3F9] items-center justify-center text-center  ' >
 
                       <a  href="#"> <FaFacebook /> </a>
                       </div>
-                      <div className=' px-[30px] py-[20px] rounded-md  text-[30px] border-2 border-[#789ADE] items-center justify-center text-center  ' >
+                      <div className=' px-[30px] py-[20px] rounded-md  text-[30px] hover:bg-[#d7e1f4]  border-2 border-[#789ADE] items-center justify-center text-center  ' >
 
                       <a  href="#"> <FaApple /> </a>
                       </div>
